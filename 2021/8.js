@@ -201,20 +201,15 @@ let input = [
     "befcg edb bgadfc dfaecb cdfegab egda agcdbe ed dcabg debgc | geda aegd gcdafb dcefab",
 ];
 
-let prefix = [];
-for (let i = 0; i < input.length; i++) {
-    prefix[i] = input[i].slice(0, 58).split(" ");
-}
+let sum = 0;
 
-let suffix = [];
-for (let i = 0; i < input.length; i++) {
-    suffix[i] = input[i].slice(61).split(" ");
-}
+input.forEach((thing) => {
+    let arr = thing.slice(0, 58).split(" ");
+    let suffixes = thing.slice(61).split(" ");
 
-prefix.forEach(arr => {
-    let sections = [];
     let indexOfNumber = [];
-    
+
+    //1, 4, 7, 8
     for (let i = 0; i < arr.length; i++) {
         switch (arr[i].length) {
             case 2:
@@ -234,35 +229,98 @@ prefix.forEach(arr => {
         }
     }
 
-    let one = arr[indexOfNumber[1]].slice(0, 1);
-    let two = arr[indexOfNumber[1]].slice(1);
-    let topSection = arr[indexOfNumber[7]];
+    //3, 6, 9
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i].length == 5) {
+            let one = arr[indexOfNumber[1]];
 
-    topSection = topSection.replace(one, "");
-    topSection = topSection.replace(two, "");
-    
-    sections[0] = topSection;
-    
-    console.log(arr);
-    console.log(sections[0]);
-});
-
-
-
-
-
-
-
-/* let count = 0;
-
-suffix.forEach(array => {
-    array.forEach(item => {
-        len = item.length;
-
-        if (len == 2 || len == 3 || len == 4 || len == 7) {
-            count ++;
+            if (
+                arr[i].includes(one.charAt(0)) &&
+                arr[i].includes(one.charAt(1))
+            ) {
+                indexOfNumber[3] = i;
+            }
         }
+
+        if (arr[i].length == 6) {
+            let one = arr[indexOfNumber[1]];
+
+            if (
+                !arr[i].includes(one.charAt(0)) ||
+                !arr[i].includes(one.charAt(1))
+            ) {
+                indexOfNumber[6] = i;
+            }
+        }
+
+        if (arr[i].length == 6) {
+            let four = arr[indexOfNumber[1]];
+
+            if (
+                arr[i].includes(four.charAt(0)) &&
+                arr[i].includes(four.charAt(1)) &&
+                arr[i].includes(four.charAt(2)) &&
+                arr[i].includes(four.charAt(3))
+            ) {
+                indexOfNumber[9] = i;
+            }
+        }
+    }
+
+    //0, 2, 5
+    for (let i = 0; i < arr.length; i++) {
+        if (arr[i].length == 6) {
+            if (
+                i != indexOfNumber[6] &&
+                i != indexOfNumber[9]
+            ) {
+                indexOfNumber[0] = i;
+            }
+        }
+
+        if (arr[i].length == 5) {
+            let four = arr[indexOfNumber[4]];
+            let count = 0;
+
+            for (let n = 0; n < four.length; n++) {
+                if (
+                    arr[i].includes(four[n]) &&
+                    i != indexOfNumber[3]
+                ) {
+                    count++;
+                }
+            }
+
+            if (count == 2) {
+                indexOfNumber[2] = i;
+            } else if (count == 3) {
+                indexOfNumber[5] = i;
+            }
+        }
+    }
+
+    let orderedCodes = [];
+
+    indexOfNumber.forEach((index) => {
+        orderedCodes.push(arr[index].split("").sort().join(""));
     });
+
+    let partSum = 0;
+
+    for (let i = 0; i < suffixes.length; i++) {
+        suffixes[i] = suffixes[i].split("").sort().join("");
+
+        for (let n = 0; n < orderedCodes.length; n++) {
+            if (suffixes[i] == orderedCodes[n]) {
+                partSum += n * Math.pow(10, 3 - i);
+            }
+        }
+    }
+
+    console.log(suffixes);
+    console.log(partSum);
+
+    sum += partSum;
 });
 
-console.log(count); */
+console.log(sum);
