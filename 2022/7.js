@@ -984,6 +984,32 @@ let input = [
     "281998 zprprf.hml"
 ];
 
+let example = [
+    "$ cd /",
+    "$ ls",
+    "dir a",
+    "14848514 b.txt",
+    "8504156 c.dat",
+    "dir d",
+    "$ cd a",
+    "$ ls",
+    "dir e",
+    "29116 f",
+    "2557 g",
+    "62596 h.lst",
+    "$ cd e",
+    "$ ls",
+    "584 i",
+    "$ cd ..",
+    "$ cd ..",
+    "$ cd d",
+    "$ ls",
+    "4060174 j",
+    "8033020 d.log",
+    "5626152 d.ext",
+    "7214296 k",
+];
+
 let path = [];
 
 let root = {
@@ -1005,7 +1031,7 @@ input.forEach(command => {
                 path.push(dirName);
             }
 
-        } else if (command.includes("ls")) {
+        } else if (command.includes("ls") &! command.includes("cd")) {
 
         }
     } else {
@@ -1020,7 +1046,7 @@ input.forEach(command => {
 
             treeAtPath(root, path).content.push(directory);
         } else {
-            let size = command.split(" ")[0];
+            let size = parseInt(command.split(" ")[0]);
             let name = command.split(" ")[1];
 
             let file = {
@@ -1034,21 +1060,55 @@ input.forEach(command => {
     }
 });
 
-path = "c:/lmtpm/fvt".split("/");
+const totalSpace = 70000000;
+const neededSpace = 30000000;
 
-console.log("path: " + path.join("/"));
-console.log(treeAtPath(root, path));
+path = "c:".split("/");
+let paths = [];
+const usedSpace = sizeOfFolder(root, path);
+
+const freeSpace = totalSpace - usedSpace;
+const neededDeletion = neededSpace - freeSpace;
+
+let validPaths = paths.filter(item => item >= neededDeletion);
+
+console.log(validPaths.sort(compareNumbers)[0]);
+
+function compareNumbers(a, b) {
+    return a - b;
+}
 
 function treeAtPath(root, path) {
     let currentTree = root;
     
     path.forEach(dirName => {
-        if (dirName == "c:") return;
+        if (dirName == "c:") {return;}
         
-        let child = currentTree.content.find(c => c.name === dirName);
+        let child = currentTree.content.find(c => c.name == dirName);
 
         currentTree = child;
     });
 
     return currentTree;
+}
+
+function sizeOfFolder(root, path) {    
+    let folder = treeAtPath(root, path);
+    let size = 0;
+    
+    folder.content.forEach(item => {
+        if (item.type == "file") {
+            size += item.size;            
+        } else if (item.type == "directory") {
+            let newPath = path;
+            newPath.push(item.name);
+            size += sizeOfFolder(root, newPath);
+        }
+    });
+
+    path = path.pop()
+
+    paths.push(size);
+
+    return size;
 }
